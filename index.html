@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeirloomAI — Grandpa's Voice Memo Recipe & Storybook Engine</title>
+    <meta name="description"
+        content="A private, open-source AI powered family recipe & storybook engine. Convert voice notes into recipe cards, check roommate allergies, and practice languages offline.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-theme">
+    <!-- Top Global Notification Banner -->
+    <div class="top-banner" id="privacyBanner">
+        <div class="banner-content">
+            <span class="badge badge-success"><i class="fa-solid fa-shield-halved"></i> 100% Private Local AI</span>
+            <p>Your grandpa's voice memos & family recipes never leave this device. Powered by Open-Source AI.</p>
+            <button class="banner-close" id="closeBannerBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="logo-title">Heirloom<span class="highlight">AI</span></span>
+                    <span class="logo-subtitle">Build for a Friend & Family</span>
+                </div>
+            </div>
+
+            <!-- Model Switcher & Engine Indicator -->
+            <div class="header-actions">
+                <div class="engine-selector-wrapper">
+                    <i class="fa-solid fa-microchip engine-icon"></i>
+                    <select id="aiEngineSelect" class="engine-select">
+                        <option value="embedded">⚡ Browser Local Open-AI Engine (Offline Ready)</option>
+                        <option value="ollama">🦙 Ollama Local (http://localhost:11434)</option>
+                        <option value="lmstudio">🧪 LM Studio OpenAI API (http://localhost:1234)</option>
+                    </select>
+                </div>
+
+                <div class="model-status" id="modelStatusIndicator">
+                    <span class="status-dot online"></span>
+                    <span class="status-text" id="statusText">Model: Qwen 2.5 (Offline)</span>
+                </div>
+
+                <button class="btn btn-outline btn-sm" id="manifestoModalBtn">
+                    <i class="fa-solid fa-heart-pulse"></i> Why Open AI?
+                </button>
+
+                <button class="icon-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Application Container -->
+    <main class="app-container">
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-card">
+                <div class="hero-content">
+                    <div class="hero-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> Build for a Friend Hackathon
+                    </div>
+                    <h1>Turn Grandpa's Spoken Stories & Memos into an Heirloom Cookbook</h1>
+                    <p>Keep your loved one's voice, memories, and secret cooking techniques safe forever without sending
+                        a single byte to a big-tech cloud server.</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary btn-lg tab-trigger" data-tab="recorderTab">
+                            <i class="fa-solid fa-microphone"></i> Record Spoken Memo
+                        </button>
+                        <button class="btn btn-secondary btn-lg tab-trigger" data-tab="vaultTab">
+                            <i class="fa-solid fa-utensils"></i> Browse Family Vault
+                        </button>
+                        <button class="btn btn-accent btn-lg tab-trigger" data-tab="allergyTab">
+                            <i class="fa-solid fa-shield-cat"></i> Roommate Allergy Guard
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-image-wrapper">
+                    <img src="./recipe_hero.png" alt="Grandpa's Vintage Recipe Journal" class="hero-img">
+                    <div class="hero-floating-badge">
+                        <i class="fa-solid fa-lock"></i> Zero Data Leak • $0 Cloud Cost
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs Bar -->
+        <nav class="tabs-nav">
+            <button class="nav-tab active" id="tab-recorderTab" data-tab="recorderTab">
+                <i class="fa-solid fa-microphone-lines"></i>
+                <span>Voice Memo Transcriber</span>
+            </button>
+            <button class="nav-tab" id="tab-vaultTab" data-tab="vaultTab">
+                <i class="fa-solid fa-book-open"></i>
+                <span>Recipe & Story Vault</span>
+                <span class="badge badge-count" id="recipeCountBadge">3</span>
+            </button>
+            <button class="nav-tab" id="tab-allergyTab" data-tab="allergyTab">
+                <i class="fa-solid fa-shield-virus"></i>
+                <span>Roommate Allergy Guard</span>
+            </button>
+            <button class="nav-tab" id="tab-practiceTab" data-tab="practiceTab">
+                <i class="fa-solid fa-comments"></i>
+                <span>Language & Voice Partner</span>
+            </button>
+            <button class="nav-tab" id="tab-showcaseTab" data-tab="showcaseTab">
+                <i class="fa-solid fa-code-branch"></i>
+                <span>Open Innovation Engine</span>
+            </button>
+        </nav>
+
+        <!-- TAB 1: VOICE MEMO TRANSCRIBER & AI RECIPE PARSER -->
+        <section class="tab-content active" id="recorderTab">
+            <div class="grid-2col">
+                <!-- Left: Recording & Input Card -->
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-microphone-alt"></i> Spoken Audio & Voice Memo Input</h2>
+                        <span class="hint">Record live or upload Grandpa's voice note file</span>
+                    </div>
+
+                    <div class="recorder-wrapper">
+                        <div class="visualizer-container">
+                            <canvas id="audioVisualizer" width="400" height="100"></canvas>
+                            <div class="timer-display" id="recordTimer">00:00</div>
+                        </div>
+
+                        <div class="recorder-actions">
+                            <button class="btn btn-record" id="recordBtn">
+                                <i class="fa-solid fa-circle"></i> Start Live Recording
+                            </button>
+                            <button class="btn btn-outline" id="stopBtn" disabled>
+                                <i class="fa-solid fa-stop"></i> Stop & Transcribe
+                            </button>
+                        </div>
+
+                        <div class="divider"><span>OR UPLOAD AUDIO FILE</span></div>
+
+                        <div class="drop-zone" id="audioDropZone">
+                            <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                            <p>Drag & drop Grandpa's MP3, WAV, or M4A audio memo here</p>
+                            <span class="file-browse-link">or click to browse files</span>
+                            <input type="file" id="audioFileInput" accept="audio/*" class="file-input">
+                        </div>
+                        <div id="fileInfo" class="file-info hidden"></div>
+                    </div>
+
+                    <div class="transcript-section">
+                        <div class="section-title">
+                            <label for="rawTranscriptText"><i class="fa-solid fa-align-left"></i> Spoken Transcript /
+                                Raw Story Memo</label>
+                            <button class="btn-text" id="loadSampleMemoBtn"><i class="fa-solid fa-lightbulb"></i> Load
+                                Grandpa's Sample Memo</button>
+                        </div>
+                        <textarea id="rawTranscriptText" class="form-control" rows="7"
+                            placeholder="Recorded text will appear here. Or paste Grandpa's voice transcript directly... e.g. 'Hey kiddo, here is how we made the Sunday Stew back in 1974. First get 2 pounds of chuck roast, but don't cut it too small! Add coarse sea salt, 3 cloves of smashed garlic, and Grandma's secret splash of apple cider vinegar...'"></textarea>
+                    </div>
+                </div>
+
+                <!-- Right: Open AI Configuration & Recipe Structurer -->
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-robot"></i> Open-Source AI Parser Pipeline</h2>
+                        <span class="badge badge-accent">Local Inference</span>
+                    </div>
+
+                    <div class="ai-config-panel">
+                        <div class="form-group">
+                            <label for="promptPresetSelect"><i class="fa-solid fa-sliders"></i> System Prompt
+                                Preset:</label>
+                            <select id="promptPresetSelect" class="form-control">
+                                <option value="heirloom">🏆 Grandpa's Nostalgic Family Recipe & Story Engine</option>
+                                <option value="allergy">🛡️ Roommate Safe & Allergen Strict Extraction</option>
+                                <option value="quick">⚡ Quick Dinner & Simple Steps Parser</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="temperatureInput">Temperature (Creativity): <span
+                                        id="tempVal">0.3</span></label>
+                                <input type="range" id="temperatureInput" min="0" max="1" step="0.1" value="0.3"
+                                    class="form-range">
+                            </div>
+                            <div class="form-group">
+                                <label for="targetModelName">Active Model Weight:</label>
+                                <input type="text" id="targetModelName" class="form-control" value="qwen2.5:latest">
+                            </div>
+                        </div>
+
+                        <div class="allergy-quick-check">
+                            <label><i class="fa-solid fa-shield-cat"></i> Auto-Apply Roommate Allergy Profile:</label>
+                            <div class="checkbox-group" id="quickAllergyCheckboxes">
+                                <label class="checkbox-pill"><input type="checkbox" value="Gluten-Free" checked>
+                                    Gluten-Free</label>
+                                <label class="checkbox-pill"><input type="checkbox" value="Dairy-Free" checked>
+                                    Dairy-Free</label>
+                                <label class="checkbox-pill"><input type="checkbox" value="Nut-Free" checked>
+                                    Nut-Free</label>
+                                <label class="checkbox-pill"><input type="checkbox" value="Vegan"> Vegan</label>
+                            </div>
+                        </div>
+
+                        <div class="action-box">
+                            <button class="btn btn-primary btn-block btn-lg" id="generateRecipeBtn">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Process with Open AI Engine
+                            </button>
+                        </div>
+
+                        <!-- Processing Loading Indicator -->
+                        <div id="aiProcessingState" class="ai-processing-card hidden">
+                            <div class="spinner"></div>
+                            <div class="processing-info">
+                                <h4 id="processingStepTitle">Running Local Open AI Parser...</h4>
+                                <p id="processingStepDesc">Tokenizing transcript & extracting ingredients, family
+                                    memories, and cooking steps...</p>
+                            </div>
+                        </div>
+
+                        <!-- Output Preview Box -->
+                        <div id="recipeOutputPreview" class="recipe-preview-box hidden">
+                            <div class="preview-header">
+                                <span class="badge badge-success"><i class="fa-solid fa-check-circle"></i> Structured
+                                    Recipe Generated!</span>
+                                <span class="latency-tag" id="latencyTag"><i class="fa-solid fa-stopwatch"></i> 140ms
+                                    (Local Latency)</span>
+                            </div>
+                            <h3 id="previewTitle">Grandpa's Nostalgic Sunday Beef Stew</h3>
+                            <p class="preview-story" id="previewStory"></p>
+
+                            <div class="preview-details">
+                                <div><strong><i class="fa-solid fa-clock"></i> Prep Time:</strong> <span
+                                        id="previewPrep">45 mins</span></div>
+                                <div><strong><i class="fa-solid fa-users"></i> Servings:</strong> <span
+                                        id="previewServings">6 servings</span></div>
+                            </div>
+
+                            <div class="preview-actions">
+                                <button class="btn btn-success" id="saveVaultBtn">
+                                    <i class="fa-solid fa-bookmark"></i> Save to Family Vault
+                                </button>
+                                <button class="btn btn-outline" id="viewFullPreviewBtn">
+                                    <i class="fa-solid fa-eye"></i> View Full Details
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: FAMILY RECIPE & STORY VAULT -->
+        <section class="tab-content" id="vaultTab">
+            <div class="vault-controls">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="recipeSearchInput" class="search-input"
+                        placeholder="Search recipes by name, ingredient, or Grandpa's secret notes...">
+                </div>
+
+                <div class="filter-wrapper">
+                    <select id="allergyFilterSelect" class="filter-select">
+                        <option value="all">All Recipes</option>
+                        <option value="safe">🛡️ Roommate Safe Only</option>
+                        <option value="Gluten-Free">🌾 Gluten-Free</option>
+                        <option value="Dairy-Free">🥛 Dairy-Free</option>
+                        <option value="Nut-Free">🥜 Nut-Free</option>
+                    </select>
+
+                    <button class="btn btn-outline" id="exportCookbookBtn">
+                        <i class="fa-solid fa-print"></i> Export Printable Cookbook
+                    </button>
+                    <button class="btn btn-secondary" id="exportJsonBtn">
+                        <i class="fa-solid fa-download"></i> Backup JSON
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recipe Grid -->
+            <div class="recipe-grid" id="recipeGrid">
+                <!-- Injected via JavaScript -->
+            </div>
+        </section>
+
+        <!-- TAB 3: ROOMMATE ALLERGY SAFETY SHIELD -->
+        <section class="tab-content" id="allergyTab">
+            <div class="grid-2col">
+                <!-- Left: Roommate Profile Manager -->
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-user-shield"></i> Roommate & Loved One Allergy Profiles</h2>
+                        <span class="hint">Configure safety rules for your housemates</span>
+                    </div>
+
+                    <div class="profile-editor">
+                        <div class="form-group">
+                            <label for="friendNameInput">Friend / Roommate Name:</label>
+                            <input type="text" id="friendNameInput" class="form-control" value="Alex (Roommate)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Severe Allergies & Intolerances:</label>
+                            <div class="allergy-tags-selector">
+                                <label class="tag-checkbox"><input type="checkbox" class="allergy-rule" value="Gluten"
+                                        checked> 🌾 Gluten / Wheat</label>
+                                <label class="tag-checkbox"><input type="checkbox" class="allergy-rule" value="Dairy"
+                                        checked> 🥛 Dairy / Lactose</label>
+                                <label class="tag-checkbox"><input type="checkbox" class="allergy-rule" value="Peanuts"
+                                        checked> 🥜 Peanuts & Tree Nuts</label>
+                                <label class="tag-checkbox"><input type="checkbox" class="allergy-rule"
+                                        value="Shellfish"> 🦐 Shellfish</label>
+                                <label class="tag-checkbox"><input type="checkbox" class="allergy-rule" value="Eggs"> 🥚
+                                    Eggs</label>
+                                <label class="tag-checkbox"><input type="checkbox" class="allergy-rule" value="Soy"> 🫘
+                                    Soy</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customRestrictedInput">Custom Dislikes or Restricted Items (comma
+                                separated):</label>
+                            <input type="text" id="customRestrictedInput" class="form-control"
+                                value="Coriander/Cilantro, Spicy Chili, Excessive Sodium">
+                        </div>
+
+                        <button class="btn btn-primary" id="saveProfileBtn">
+                            <i class="fa-solid fa-floppy-disk"></i> Update Safety Profile
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right: AI Substitution & Safety Scanner -->
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-vial-circle-check"></i> Open AI Safe Substitution Assistant</h2>
+                        <span class="badge badge-success">Local Privacy Guard</span>
+                    </div>
+
+                    <div class="substitution-tester">
+                        <div class="form-group">
+                            <label for="ingredientTestInput">Paste Ingredients or Recipe Text to Scan:</label>
+                            <textarea id="ingredientTestInput" class="form-control" rows="5"
+                                placeholder="e.g. 2 cups wheat flour, 1 cup butter, 3 eggs, 1 tbsp heavy cream, salt, black pepper"></textarea>
+                        </div>
+
+                        <button class="btn btn-accent btn-block" id="scanIngredientsBtn">
+                            <i class="fa-solid fa-shield-halved"></i> Scan & Generate Safe Substitutions
+                        </button>
+
+                        <div id="safetyReportResult" class="safety-report hidden">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: LANGUAGE & PRACTICE PARTNER -->
+        <section class="tab-content" id="practiceTab">
+            <div class="chat-container glass-card">
+                <div class="chat-header">
+                    <div class="partner-profile">
+                        <div class="avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                        <div>
+                            <h3>Patient Practice Partner</h3>
+                            <p class="subtitle">Helps friends practice cooking terms, stories & languages without cloud
+                                logging</p>
+                        </div>
+                    </div>
+
+                    <div class="language-selector">
+                        <label for="targetLanguage"><i class="fa-solid fa-globe"></i> Language:</label>
+                        <select id="targetLanguage" class="form-control-sm">
+                            <option value="English">English (Grandpa's Cooking Assistant)</option>
+                            <option value="Spanish">Spanish (Practica de cocina)</option>
+                            <option value="Italian">Italian (Partner di cucina italiana)</option>
+                            <option value="French">French (Partenaire de cuisine)</option>
+                            <option value="German">German (Koch-Lernpartner)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-bubble bot">
+                        <div class="bubble-sender"><i class="fa-solid fa-robot"></i> Practice Partner (Local AI)</div>
+                        <div class="bubble-text">Hello! I am your patient cooking and language practice partner. Tell me
+                            what recipe you want to make or ask me any question about Grandpa's recipes! How can I help
+                            you today?</div>
+                    </div>
+                </div>
+
+                <div class="chat-input-bar">
+                    <button class="icon-btn voice-input-btn" id="voiceChatBtn" title="Speak to Partner">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <input type="text" id="chatInputText" class="chat-input"
+                        placeholder="Type or click the microphone to speak to your practice partner...">
+                    <button class="btn btn-primary" id="sendChatBtn">
+                        <i class="fa-solid fa-paper-plane"></i> Send
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: OPEN INNOVATION SHOWCASE -->
+        <section class="tab-content" id="showcaseTab">
+            <div class="showcase-hero glass-card">
+                <h2><i class="fa-solid fa-code-merge"></i> Why Open Innovation Matters for HeirloomAI</h2>
+                <p>Built for the "Build for a Friend" Hackathon • Demonstrating why open-weight models and browser local
+                    execution outperform closed proprietary APIs.</p>
+
+                <div class="showcase-grid">
+                    <div class="showcase-card">
+                        <div class="card-icon"><i class="fa-solid fa-wifi"></i></div>
+                        <h3>1. Works 100% Offline</h3>
+                        <p>Runs on a laptop with zero internet connection. Grandpa can record family recipes at a remote
+                            cabin, on an airplane, or off-grid.</p>
+                    </div>
+
+                    <div class="showcase-card">
+                        <div class="card-icon"><i class="fa-solid fa-user-lock"></i></div>
+                        <h3>2. Total Data Privacy</h3>
+                        <p>Keeps sensitive family stories, voice memos, and personal health/allergy profiles strictly
+                            off third-party servers.</p>
+                    </div>
+
+                    <div class="showcase-card">
+                        <div class="card-icon"><i class="fa-solid fa-sliders"></i></div>
+                        <h3>3. Model Swappability</h3>
+                        <p>Seamlessly hot-swap between Qwen 2.5, Llama 3.2, Mistral, or custom fine-tuned weights
+                            depending on memory and language.</p>
+                    </div>
+
+                    <div class="showcase-card">
+                        <div class="card-icon"><i class="fa-solid fa-piggy-bank"></i></div>
+                        <h3>4. $0 Operational Cost</h3>
+                        <p>Zero per-token cloud API bills. Unlimited transcript processing and recipe generation for
+                            life at zero recurring cost.</p>
+                    </div>
+                </div>
+
+                <div class="tech-stack-details">
+                    <h3>Architecture & Tech Stack</h3>
+                    <ul class="tech-list">
+                        <li><strong>Frontend Architecture:</strong> Pure Vanilla HTML5, Modern HSL CSS variables, Async
+                            Modular ES6 JavaScript (`index.html`, `style.css`, `app.js`).</li>
+                        <li><strong>Audio Processing:</strong> HTML5 Web Audio API, MediaRecorder API, Frequency
+                            Waveform Canvas Renderer.</li>
+                        <li><strong>Open AI Engine Bridge:</strong> Dual local pipeline supporting REST API endpoints
+                            (`Ollama` & `LM Studio`) alongside Browser Local Rule-based Fallback Parser.</li>
+                        <li><strong>Speech Synthesis:</strong> Web Speech API (`SpeechSynthesisUtterance`) for
+                            hands-free audio narration.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- RECIPE DETAIL / EDIT MODAL -->
+    <div class="modal-backdrop hidden" id="recipeModalBackdrop">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="modalRecipeTitle">Recipe Details</h2>
+                <button class="modal-close" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="modalRecipeBody">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="narrateRecipeBtn"><i class="fa-solid fa-volume-high"></i> Listen
+                    Read-Aloud</button>
+                <button class="btn btn-danger" id="deleteRecipeBtn"><i class="fa-solid fa-trash"></i> Delete
+                    Recipe</button>
+                <button class="btn btn-primary" id="printSingleRecipeBtn"><i class="fa-solid fa-print"></i> Print Recipe
+                    Card</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MANIFESTO MODAL -->
+    <div class="modal-backdrop hidden" id="manifestoModal">
+        <div class="modal-card modal-lg">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-heart-circle-check"></i> Open AI & Build for a Friend Manifesto</h2>
+                <button class="modal-close" id="closeManifestoBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <h3>Solving Real Problems with Open Source AI</h3>
+                <p>We built <strong>HeirloomAI</strong> specifically to solve two deeply personal problems for our
+                    friends and family:</p>
+                <ol>
+                    <li><strong>Preserving Grandpa's Voice & Recipes:</strong> Older family members often have
+                        invaluable cooking secrets stored in voice notes and oral stories. Proprietary cloud APIs
+                        threaten privacy and risk losing access if services shut down.</li>
+                    <li><strong>Protecting Roommates with Severe Allergies:</strong> Mislabeling a dish can have
+                        dangerous consequences. Having a fast, local AI scanner that cross-references roommate allergies
+                        instantly brings peace of mind.</li>
+                </ol>
+
+                <div class="quote-box">
+                    <p><em>"Open innovation means technology belongs to the people using it. Our family recipes belong
+                            to our family—not a server farm."</em></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="dismissManifestoBtn">Got it, let's cook!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRINTABLE COOKBOOK CONTAINER (Hidden until print triggered) -->
+    <div id="printableCookbook" class="printable-cookbook hidden">
+        <!-- Generated for window.print() -->
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Core App JavaScript -->
+    <script src="app.js"></script>
+</body>
+
+</html>
